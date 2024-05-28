@@ -1,0 +1,58 @@
+server:
+  port: 8082
+
+# -- Default spring configuration
+spring:
+  servlet:
+    multipart:
+      maxFileSize: 5000MB
+      maxRequestSize: 5000MB
+  application:
+    name: product
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://k10c102.p.ssafy.io:3306/ddib?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true
+    username: ssafy
+    password: ssafy
+  jpa:
+    open-in-view: false
+#    hibernate:
+#      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+#        show_sql: true
+#        format_sql: true
+  batch:
+    jdbc:
+      initialize-schema: always
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      consume: b3
+      produce: b3_multi
+  zipkin:
+    tracing:
+      endpoint: "http://k10c102.p.ssafy.io:9411/api/v2/spans"
+
+eureka:
+  instance:
+    hostname: k10c102.p.ssafy.io
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://k10c102.p.ssafy.io:8761/eureka/
+
+logging:
+  level:
+    com:
+      ddib:
+        product: info
+  config: classpath:logback-prod.xml
+
+feign-client:
+  notification: http://k10c102.p.ssafy.io:8084

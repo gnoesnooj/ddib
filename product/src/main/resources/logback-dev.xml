@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+<!--    <property resource="application-${spring.profiles.active}.yml" />-->
+
+    <!-- YML 파일에서 설정된 값을 변수로 사용 -->
+<!--    <variableScope>-->
+<!--        <variable name="LOG_POINT" value="${logging.targetPoint}" />-->
+<!--    </variableScope>-->
+
+    <!--    <properties resource="application-dev.yml">-->
+<!--        <property name="LOGGING_TARGET_POINT" value="${logging.targetPoint}" />-->
+<!--    </properties>-->
+<!--    <property name="CONSOLE_LOG_PATTERN"-->
+<!--              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(%-4relative) -&#45;&#45;  [ %thread{10} ] %cyan(%logger{20}) : %msg%n"/>-->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(%-4relative) --- [ %thread{10} , %X{traceId:-} , %X{spanId:-} ] %cyan(%logger{20}) : %msg%n"/>
+    <!--프로젝트 최상단을 기준으로 아래 경로에 로그 파일(.log)이 저장된다.-->
+<!--    <property name="LOG_PATH" value="/var/log/joonseong"/>-->
+    <!--        <property name="LOG_PATH" value="./logs"/>-->
+    <!--저장되는 로그 파일의 이름을 지정한다.-->
+<!--    <property name="FILE_NAME" value="jslogging-logs"/>-->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>${LOG_PATH}/${FILE_NAME}-json.log</file>-->
+<!--        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>${LOG_PATH}/${FILE_NAME}_%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+<!--            <maxHistory>90</maxHistory>-->
+<!--            <timeBasedFileNamingAndTriggeringPolicy-->
+<!--                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">-->
+<!--                <maxFileSize>10MB</maxFileSize>-->
+<!--            </timeBasedFileNamingAndTriggeringPolicy>-->
+<!--        </rollingPolicy>-->
+<!--    </appender>-->
+
+    <appender name="FLUENT_TEXT" class="ch.qos.logback.more.appenders.DataFluentAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 에러로그를 설정하고 로그의 레벨이 맞으면 onMatch, 아니라면 onMismatch  -->
+            <level>info</level>
+        </filter>
+        <!-- Check tag and label fluentd info: https://docs.fluentd.org/configuration/config-file-->
+        <tag>applog</tag>
+        <label>log</label>
+        <!--로컬환경-->
+        <remoteHost>localhost</remoteHost>
+        <!--배포환경-->
+<!--        <remoteHost>k10c102.p.ssafy.io</remoteHost>-->
+<!--        <remoteHost>host.docker.internal</remoteHost>-->
+<!--        <remoteHost>${LOG_POINT}</remoteHost>-->
+        <port>9882</port>
+    </appender>
+
+    <root level = "INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FLUENT_TEXT"/>
+    </root>
+</configuration>
+
+
+<!--<configuration>-->
+<!--    <timestamp key="byDay" datePattern="yyyyMMdd"/>-->
+<!--    <appender name="FILE" class="ch.qos.logback.core.FileAppender">-->
+<!--        <file>/var/log/%d{byDay}.log</file>-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    <logger name="log.test" level="WARN">-->
+<!--        <appender-ref ref="FILE"/>-->
+<!--    </logger>-->
+
+<!--    <logger name="http_listener_test" level="INFO">-->
+<!--        <appender-ref ref="STDOUT"/>-->
+<!--    </logger>-->
+
+<!--    <root level="INFO">-->
+<!--        <appender-ref ref="FILE"/>-->
+<!--    </root>-->
+<!--</configuration>-->
+
+
+        <!--try 2-->
+
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<configuration scan="true">-->
+<!--    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <layout class="ch.qos.logback.classic.PatternLayout">-->
+<!--            <Pattern>-->
+<!--                %d{yyyy-MM-dd HH:mm:ss, UTC} [%X{X-B3-TraceId:-}, %X{X-B3-SpanId:-}] [%X{requestURL}] [%thread] %-5level %logger{36} - %msg %n-->
+<!--            </Pattern>-->
+<!--        </layout>-->
+<!--    </appender>-->
+
+<!--    <springProfile name="dev, stg, prd">-->
+<!--        <appender name="fluentd" class="ch.qos.logback.more.appenders.DataFluentAppender">-->
+<!--            <tag>applog</tag>-->
+<!--            <label>logback</label>-->
+<!--            <remoteHost>localhost</remoteHost>-->
+<!--            <port>9880</port>-->
+
+<!--            &lt;!&ndash; [Optional] Configurations to customize Fluent-logger-java's behavior &ndash;&gt;-->
+<!--            <bufferCapacity>16777216</bufferCapacity> &lt;!&ndash; in bytes &ndash;&gt;-->
+<!--            <timeout>10000</timeout> &lt;!&ndash; in milliseconds &ndash;&gt;-->
+
+<!--            &lt;!&ndash;  [Optional] If true, Map Marker is expanded instead of nesting in the marker name &ndash;&gt;-->
+<!--            <flattenMapMarker>false</flattenMapMarker>-->
+<!--            &lt;!&ndash;  [Optional] default "marker" &ndash;&gt;-->
+<!--            <markerPrefix></markerPrefix>-->
+
+<!--            &lt;!&ndash; [Optional] Message encoder if you want to customize message &ndash;&gt;-->
+<!--            <layout class="ch.qos.logback.classic.PatternLayout">-->
+<!--                <Pattern>-->
+<!--                    %d{yyyy-MM-dd HH:mm:ss, UTC} [%X{X-B3-TraceId:-}, %X{X-B3-SpanId:-}] [%X{requestURL}] [%thread] %-5level %logger{36} - %msg %n-->
+<!--                </Pattern>-->
+<!--            </layout>-->
+
+<!--            &lt;!&ndash; [Optional] Message field key name. Default: "message" &ndash;&gt;-->
+<!--            <messageFieldKeyName>msg</messageFieldKeyName>-->
+<!--        </appender>-->
+
+<!--        <appender name="async" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--            &lt;!&ndash; Logback의 AsyncAppender 옵션 &ndash;&gt;-->
+<!--            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+<!--                <level>DEBUG</level>-->
+<!--            </filter>-->
+<!--            <param name="includeCallerData" value="false"/>-->
+<!--            <param name="queueSize" value="2048"/>-->
+<!--            <param name="neverBlock" value="true"/>-->
+<!--            <param name="maxFlushTime" value="5000"/>-->
+<!--            <appender-ref ref="fluentd" />-->
+<!--        </appender>-->
+<!--    </springProfile>-->
+
+<!--    <logger name="com.xyz" level="DEBUG" additivity="false">-->
+<!--        <appender-ref ref="stdout" />-->
+<!--        <springProfile name="dev, stg, prod">-->
+<!--            <appender-ref ref="fluentd" />-->
+<!--        </springProfile>-->
+<!--    </logger>-->
+
+<!--    <root level="INFO">-->
+<!--        <appender-ref ref="stdout" />-->
+<!--        <springProfile name="dev, stg, prod">-->
+<!--            <appender-ref ref="fluentd" />-->
+<!--        </springProfile>-->
+<!--    </root>-->
+
+<!--</configuration>-->
+
+
+
+
+
+
+
+
+
+
+<!-- try 1 -->
+
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<configuration>-->
+<!--    <property name="CONSOLE_LOG_PATTERN"-->
+<!--              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(%-4relative) -&#45;&#45;  [ %thread{10} ] %cyan(%logger{20}) : %msg%n"/>-->
+<!--    &lt;!&ndash;프로젝트 최상단을 기준으로 아래 경로에 로그 파일(.log)이 저장된다.&ndash;&gt;-->
+<!--    <property name="LOG_PATH" value="/var/log/joonseong"/>-->
+<!--    &lt;!&ndash;        <property name="LOG_PATH" value="./logs"/>&ndash;&gt;-->
+<!--    &lt;!&ndash;저장되는 로그 파일의 이름을 지정한다.&ndash;&gt;-->
+<!--    <property name="FILE_NAME" value="jslogging"/>-->
+
+<!--    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+<!--            <pattern>${CONSOLE_LOG_PATTERN}</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>${LOG_PATH}/${FILE_NAME}-json.log</file>-->
+<!--        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>${LOG_PATH}/${FILE_NAME}_%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+<!--            <maxHistory>90</maxHistory>-->
+<!--            <timeBasedFileNamingAndTriggeringPolicy-->
+<!--                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">-->
+<!--                <maxFileSize>10MB</maxFileSize>-->
+<!--            </timeBasedFileNamingAndTriggeringPolicy>-->
+<!--        </rollingPolicy>-->
+<!--    </appender>-->
+
+<!--    <root level = "INFO">-->
+<!--        <appender-ref ref="FILE"/>-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--    </root>-->
+<!--</configuration>-->
